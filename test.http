@@ -1,0 +1,8 @@
+### Test Non-RAG 4: Hamburg topic but specific detail NOT in your doc
+POST http://localhost:8080/api/chat
+Content-Type: application/json
+
+{
+  "message": "What is the phone number of Hamburg tourist information center?",
+  "sessionId": "rag-test"
+}

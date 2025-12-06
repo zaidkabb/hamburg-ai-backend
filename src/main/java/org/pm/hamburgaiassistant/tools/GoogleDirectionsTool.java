@@ -23,8 +23,30 @@ public class GoogleDirectionsTool {
 
     private final OkHttpClient client = new OkHttpClient();
 
-    @Tool("Get directions and travel information between two locations. " +
-            "Use this when user asks about routes, how to get somewhere, travel time, or transportation options.")
+    @Tool("""
+        Get detailed directions and route information between two locations.
+        
+        **When to use this tool:**
+        - User asks how to get from one place to another
+        - Questions about travel time or distance
+        - Planning routes or transportation
+        - Asking about public transit, walking, or driving directions
+        
+        **Examples:**
+        - "How do I get to the Elbphilharmonie from the train station?"
+        - "What's the fastest way to the airport?"
+        - "How long does it take to walk to Miniatur Wunderland?"
+        - "Show me the route from my hotel to Reeperbahn"
+        
+        **Parameters:**
+        - origin: Starting location (address, landmark, or place name)
+        - destination: End location (address, landmark, or place name)
+        - mode: Transportation mode (transit/walking/driving/bicycling) - defaults to "transit"
+        
+        **Returns:** Step-by-step directions with distance, duration, and transit details.
+        For Hamburg, always recommend public transit (U-Bahn/S-Bahn) as it's excellent!
+        """)
+
     public String getDirections(String origin, String destination, String mode) {
         try {
             // Default to transit if not specified

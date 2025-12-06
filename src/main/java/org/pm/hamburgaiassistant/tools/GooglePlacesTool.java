@@ -26,11 +26,33 @@ public class GooglePlacesTool {
 
     private final OkHttpClient client = new OkHttpClient();
 
-    @Tool("Search for places like restaurants, museums, hotels, or attractions in a city. " +
-            "Use this when user asks about places to visit, eat, or stay.")
+    @Tool("""
+            Search for places, businesses, and points of interest in any city.
+            
+            **When to use this tool:**
+            - User asks for restaurant recommendations
+            - Looking for hotels or accommodations
+            - Finding tourist attractions, museums, or landmarks
+            - Searching for cafes, bars, or nightlife
+            - Looking for shops, services, or specific businesses
+            - Finding parks, theaters, or entertainment venues
+            
+            **Examples:**
+            - "Where can I eat traditional German food?"
+            - "Best hotels near the harbor"
+            - "Coffee shops with WiFi in Hamburg"
+            - "Museums in the city center"
+            - "Vegetarian restaurants with outdoor seating"
+            
+            **Parameters:**
+            - query: What type of place (e.g., "Italian restaurants", "hotels", "museums")
+            - location: City or area (e.g., "Hamburg", "Hamburg Speicherstadt")
+            
+            **Returns:** Top 5 places with names, addresses, ratings, and opening status.
+            Always provide diverse options when possible!
+            """)
     public String searchPlaces(String query, String location) {
         try {
-            // Build the search query
             String searchQuery = query + " in " + location;
             String encodedQuery = URLEncoder.encode(searchQuery, StandardCharsets.UTF_8);
 
@@ -54,13 +76,11 @@ public class GooglePlacesTool {
                     return "No places found for: " + searchQuery;
                 }
 
-                // Parse results
                 JsonArray results = json.getAsJsonArray("results");
                 StringBuilder resultText = new StringBuilder();
                 resultText.append("Found ").append(Math.min(results.size(), 5))
                         .append(" places for '").append(searchQuery).append("':\n\n");
 
-                // Get top 5 results
                 for (int i = 0; i < Math.min(5, results.size()); i++) {
                     JsonObject place = results.get(i).getAsJsonObject();
 
@@ -105,7 +125,10 @@ public class GooglePlacesTool {
         }
     }
 
-    @Tool("Get details about a specific place by name and location")
+    @Tool("""
+            Get detailed information about a specific place by its name.
+            Use this when the user mentions a specific place name and wants more details.
+            """)
     public String getPlaceDetails(String placeName, String location) {
         return searchPlaces(placeName, location);
     }

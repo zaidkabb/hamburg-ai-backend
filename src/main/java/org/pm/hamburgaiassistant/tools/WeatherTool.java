@@ -22,7 +22,27 @@ public class WeatherTool {
 
     private final OkHttpClient client = new OkHttpClient();
 
-    @Tool("Get current weather for a city. Use this when user asks about weather.")
+    @Tool("""
+            Get current real-time weather conditions for any city.
+            
+            **When to use this tool:**
+            - User asks about current weather, temperature, or conditions
+            - User wants to know what to wear or if they need an umbrella
+            - Planning outdoor activities and need weather information
+            - Comparing weather between cities
+            
+            **Examples:**
+            - "What's the weather like in Hamburg?"
+            - "Is it raining right now?"
+            - "Do I need a jacket today?"
+            - "What's the temperature?"
+            
+            **Parameters:**
+            - city: The city name (e.g., "Hamburg", "Berlin", "Munich")
+            
+            **Returns:** Current temperature, weather description, feels-like temperature, and humidity.
+            Always mention the weather when recommending outdoor activities!
+            """)
     public String getCurrentWeather(String city) {
         try {
             String url = String.format("%s?q=%s&appid=%s&units=metric",
@@ -41,7 +61,6 @@ public class WeatherTool {
                 String responseBody = response.body().string();
                 JsonObject json = JsonParser.parseString(responseBody).getAsJsonObject();
 
-                // Parse weather data
                 String weatherDescription = json.getAsJsonArray("weather")
                         .get(0).getAsJsonObject()
                         .get("description").getAsString();

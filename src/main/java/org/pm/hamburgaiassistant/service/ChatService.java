@@ -4,45 +4,82 @@ import dev.langchain4j.memory.ChatMemory;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.service.AiServices;
-import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.pm.hamburgaiassistant.tools.*;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
+@Slf4j
 @Service
-@RequiredArgsConstructor
 public class ChatService {
 
-    private final ChatLanguageModel chatLanguageModel;
-    private final Map<Object, ChatMemory> chatMemoryStore;
+    private final ChatLanguageModel chatModel;
     private final WeatherTool weatherTool;
     private final GooglePlacesTool googlePlacesTool;
+    private final GoogleDirectionsTool googleDirectionsTool;  // FIXED!
     private final HamburgEventsTool eventbriteTool;
     private final HamburgEventsTool hamburgEventsTool;
-    private final GoogleDirectionsTool googleDirectionsTool;
-    private final KnowledgeBaseTool knowledgeBaseTool;
 
-    public String chat(String sessionId, String userMessage) {
-        // Get or create memory for this session
-        ChatMemory chatMemory = chatMemoryStore.computeIfAbsent(
-                sessionId,
-                id -> MessageWindowChatMemory.withMaxMessages(10)
-        );
+    private final Map<String, ChatMemory> sessionMemories = new ConcurrentHashMap<>();
+    private final Map<String, Assistant> sessionAssistants = new ConcurrentHashMap<>();
 
-        // Create assistant service with memory and all tools for this session
-        AssistantService assistant = AiServices.builder(AssistantService.class)
-                .chatLanguageModel(chatLanguageModel)
-                .chatMemory(chatMemory)
-                .tools(weatherTool, googlePlacesTool, eventbriteTool,
-                        hamburgEventsTool, googleDirectionsTool, knowledgeBaseTool)
-                .build();
-
-        // Get response
-        return assistant.chat(userMessage);
+    public ChatService(
+            ChatLanguageModel chatModel,
+            WeatherTool weatherTool,
+            GooglePlacesTool googlePlacesTool,
+            GoogleDirectionsTool googleDirectionsTool,  // FIXED!
+            HamburgEventsTool eventbriteTool,
+            HamburgEventsTool hamburgEventsTool
+    ) {
+        this.chatModel = chatModel;
+        this.weatherTool = weatherTool;
+        this.googlePlacesTool = googlePlacesTool;
+        this.googleDirectionsTool = googleDirectionsTool;  // FIXED!
+        this.eventbriteTool = eventbriteTool;
+        this.hamburgEventsTool = hamburgEventsTool;
     }
 
+    public String chat(String sessionId, String userMessage) {
+        log.info("Processing message for session {}: {}", sessionId, userMessage);
+
+        Assistant assistant = sessionAssistants.computeIfAbsent(sessionId, id -> {
+            ChatMemory memory = MessageWindowChatMemory.withMaxMessages(10);
+            sessionMemories.put(id, memory);
+
+            List<Object> tools = Arrays.asList(
+                    weatherTool,
+                    googlePlacesTool,
+                    googleDirectionsTool,  // FIXED!
+                    eventbriteTool,
+                    hamburgEventsTool
+            );
+
+            return AiServices.builder(Assistant.class)
+                    .chatLanguageModel(chatModel)
+                    .chatMemory(memory)
+                    .tools(tools)
+                    .build();
+        });
+
+        String response = assistant.chat(userMessage);
+        log.info("Generated response for session {}: {}", sessionId, response);
+
+        return response;
+    }
+
+    interface Assistant {
+        String chat(String userMessage);
+    }
+
+    // New method: clear stored memory and assistant for a session
     public void clearSession(String sessionId) {
-        chatMemoryStore.remove(sessionId);
+        if (sessionId == null) return;
+        sessionAssistants.remove(sessionId);
+        sessionMemories.remove(sessionId);
+        log.info("Cleared session {}", sessionId);
     }
 }

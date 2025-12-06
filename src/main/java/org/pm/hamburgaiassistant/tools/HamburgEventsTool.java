@@ -15,8 +15,8 @@ public class HamburgEventsTool {
 
     private final GooglePlacesTool googlePlacesTool;
 
-    @Tool("Find local Hamburg events, festivals, and cultural activities. " +
-            "Use this for Hamburg-specific events like concerts, theater, museums, festivals.")
+
+
     public String findHamburgEvents(String eventType) {
         // Use Google Places to find event venues
         String query = eventType + " events venues";
@@ -43,7 +43,29 @@ public class HamburgEventsTool {
         return result.toString();
     }
 
-    @Tool("Get information about major Hamburg venues and cultural centers")
+    @Tool("""
+        Find Hamburg-specific events, festivals, cultural activities, and entertainment.
+        
+        **When to use this tool:**
+        - User asks what to do in Hamburg
+        - Looking for events, concerts, or shows
+        - Asking about festivals or seasonal activities
+        - Questions about Hamburg's cultural scene
+        - Looking for entertainment or nightlife
+        
+        **Examples:**
+        - "What events are happening this weekend?"
+        - "Any concerts coming up?"
+        - "What festivals does Hamburg have?"
+        - "Things to do at night in Hamburg"
+        - "Cultural activities in Hamburg"
+        
+        **Parameters:**
+        - eventType: Type of event (e.g., "concerts", "theater", "festivals", "museums")
+        
+        **Returns:** Event venues, major Hamburg festivals, and tips for finding current events.
+        Hamburg has amazing cultural offerings year-round - be enthusiastic!
+        """)
     public String getHamburgVenues() {
         return "**Major Hamburg Venues & Cultural Centers:**\n\n" +
                 "**Concert Halls & Music:**\n" +

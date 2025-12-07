@@ -1,8 +1,18 @@
-### Test Non-RAG 4: Hamburg topic but specific detail NOT in your doc
-POST http://localhost:8080/api/chat
+### Test Weather Question
+POST https://hamburg-ai-backend.onrender.com/api/chat
 Content-Type: application/json
 
 {
-  "message": "What is the phone number of Hamburg tourist information center?",
-  "sessionId": "rag-test"
+  "sessionId": "test-session-1",
+  "message": "What is the weather in Hamburg?"
 }
+
+### Test Places Question
+POST https://hamburg-ai-backend.onrender.com/api/chat
+Content-Type: application/json
+
+{
+  "sessionId": "test-session-2",
+  "message": "Hi"
+}
+
